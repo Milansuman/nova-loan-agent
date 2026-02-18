@@ -23,7 +23,7 @@ export function AskAI() {
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return
 
     const userMessage: Message = { role: 'user', content: input }
@@ -31,11 +31,45 @@ export function AskAI() {
     setInput("")
     setLoading(true)
 
-    // Simulate AI response
-    
-    //   setMessages((prev) => [...prev, aiMessage])
-    //   setLoading(false)
-    
+    // API call to backend
+    try {
+      const response = await fetch("http://localhost:8000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: input,
+          thread_id: localStorage.getItem("thread_id") || null,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch response")
+      }
+
+      const data = await response.json()
+      
+      // Store thread_id if available
+      if (data.thread_id) {
+        localStorage.setItem("thread_id", data.thread_id)
+      }
+
+      const aiMessage: Message = { 
+        role: 'ai', 
+        content: data.response || "Sorry, I couldn't understand that."
+      }
+      setMessages((prev) => [...prev, aiMessage])
+    } catch (error) {
+      console.error("Error fetching AI response:", error)
+      const errorMessage: Message = { 
+        role: 'ai', 
+        content: "Sorry, something went wrong. Please try again later."
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
