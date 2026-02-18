@@ -1,5 +1,6 @@
 from langchain.tools import tool
 from db import db
+from datetime import date, timedelta
 
 @tool
 def verify_identity(identifier_type: str, identifier_value: str):
@@ -138,8 +139,38 @@ def calculate_emi(principal: int, annual_rate_pct: int, tenure_months: int):
     """
 
     try:
-        
+        r = annual_rate_pct/12/100
+        emi = (principal * r * (1+r)**tenure_months)/((1+r)*tenure_months - 1)
+
+        return {
+            "emi": emi
+        }
     except Exception:
         return {
             "error": "An error occurred"
         }
+    
+@tool
+def generate_pre_approval(customer_id: str, product_id: str, amount: int, annual_rate_pct: float, tenure_months: int):
+    """
+    Generate a pre-approval reference for the selected loan product.
+
+    Parameters:
+        customer_id (str): The unique identifier of the customer requesting the pre-approval.
+        product_id (str): The unique identifier of the loan product.
+        amount (int): The loan amount requested in the base currency unit.
+        annual_rate_pct (float): The annual interest rate as a percentage.
+        tenure_months (int): The loan tenure or duration in months.
+    """
+
+    return {
+        "pre_approval_id": "PA-2026-00142",
+        "status": "pre_approved",
+        "valid_until": date.today() + timedelta(days=7),
+        "disclaimer": "This pre-approval is subject to final verification and does not guarantee loan disbursal. Please visit your nearest Meridian Bank branch with original documents to complete the application.",
+        "next_steps": [
+            "Visit nearest Meridian Bank branch with original PAN and Aadhaar",
+            "Carry latest 3 months salary slips and bank statements",
+            "Complete full application within 30 days of this pre-approval"
+        ]
+    }
