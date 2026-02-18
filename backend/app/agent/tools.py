@@ -142,7 +142,7 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
 
         dti = customer["credit_report"]["defaults_last_3_years"] / monthly_income
         eligible_loan_products = [product for product in db["products"] if product["min_credit_score"] <= credit_score]
-        eligible_loan_products_by_tenure = [product for product in eligible_loan_products if employment_tenure_months in product["available_tenures_months"]]
+        eligible_loan_products_by_tenure = [product for product in eligible_loan_products if employment_tenure_months in product["available_tenures_months"]],
 
         eligibility_payload = {
             "eligible": True,
@@ -159,11 +159,11 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
         
         if len(eligible_loan_products) == 0:
             eligibility_payload["eligible"] = False
-            eligibility_payload["rejection_reasons"].append(f"Credit score {credit_score} is below minimum threshold of 620")
+            eligibility_payload["rejection_reasons"].append(f"Credit score {credit_score} is below minimum threshold of 600")
 
         if len(eligible_loan_products_by_tenure) == 0:
             eligibility_payload["eligible"] = False
-            eligibility_payload["rejection_reasons"].append(f"{employment_type} tenure of {employment_tenure_months} months is below required 12 months")
+            eligibility_payload["rejection_reasons"].append(f"{employment_type} tenure of {employment_tenure_months} months is below required 1 year")
     
         return eligibility_payload
     except IndexError as e:

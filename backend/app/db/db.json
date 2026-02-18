@@ -113,7 +113,7 @@
         {
             "verified": true,
             "customer_id": "CUST-003",
-            "full_name": "Arjun Reddy",
+            "full_name": "Arjun Paul",
             "kyc_status": "complete",
             "risk_flag": "medium",
             "pan": "ABCPP9012X",

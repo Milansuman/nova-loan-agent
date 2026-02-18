@@ -13,6 +13,8 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 import { MessageCircle, Send, Bot, Trash2, X } from "lucide-react"
+import Markdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 type Message = {
   role: 'user' | 'ai'
@@ -164,13 +166,13 @@ export function AskAI() {
                 )}
                 
                 <div
-                  className={`rounded-2xl px-4 py-2 max-w-[80%] break-words whitespace-pre-line ${
+                  className={`rounded-2xl px-4 py-2 max-w-[80%] break-words prose-strong:text-foreground prose prose-p:my-0 prose-table:my-1 prose:text-sm text-foreground prose-th:text-foreground ${
                     msg.role === 'user'
                       ? 'bg-primary text-primary-foreground rounded-br-none'
                       : 'bg-muted rounded-bl-none'
                   }`}
                 >
-                  {msg.content}
+                  <Markdown remarkPlugins={[remarkGfm]}>{msg.content}</Markdown>
                 </div>
               </div>
             ))}
