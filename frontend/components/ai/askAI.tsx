@@ -10,8 +10,9 @@ import {
   DialogTrigger,
   DialogTitle,
   DialogDescription,
+  DialogClose,
 } from "@/components/ui/dialog"
-import { MessageCircle, Send, Bot, Trash2 } from "lucide-react"
+import { MessageCircle, Send, Bot, Trash2, X } from "lucide-react"
 
 type Message = {
   role: 'user' | 'ai'
@@ -94,7 +95,11 @@ export function AskAI() {
   }
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={(open) => {
+      if (!open) {
+        clearChat()
+      }
+    }}>
       <DialogTrigger asChild>
         <Button 
           className="fixed bottom-8 right-8 h-16 w-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 z-50 bg-primary hover:bg-primary/90" 
@@ -104,28 +109,44 @@ export function AskAI() {
           <span className="sr-only">Ask AI</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] h-[600px] flex flex-col p-0 gap-0">
-        <div className="flex items-center justify-between p-4 border-b bg-muted/50 rounded-t-lg">
+      <DialogContent className="sm:max-w-[500px] md:max-w-[700px] h-[600px] md:h-[700px] flex flex-col p-0 gap-0">
+        <DialogTitle className="sr-only">Chat with AI Assistant</DialogTitle>
+        <DialogDescription className="sr-only">Ask questions about Meridian Bank services and get instant support.</DialogDescription>
+        <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10">
           <div className="flex items-center gap-2">
-            <div className="bg-primary/10 p-2 rounded-full">
+            <div className="bg-primary/10 p-2 rounded-lg">
               <Bot className="h-5 w-5 text-primary" />
             </div>
-            <div className="flex flex-col">
-              <DialogTitle className="text-base">Nova</DialogTitle>
-              <DialogDescription className="text-xs">
-                Always here to help you
-              </DialogDescription>
+            <div>
+              <h3 className="font-semibold text-sm">Meridian Assistant</h3>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Online
+              </p>
             </div>
           </div>
+          <DialogClose asChild>
+            <Button onClick={clearChat} variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </Button>
+          </DialogClose>
         </div>
         
         <ScrollArea className="flex-1 p-4 h-0">
-          <div className="flex flex-col gap-4">
+          <div className={`flex flex-col gap-4 min-h-full ${messages.length === 0 ? 'justify-center' : ''}`}>
             {messages.length === 0 && (
-              <div className="text-center text-muted-foreground text-sm py-8 space-y-2">
-                <Bot className="h-10 w-10 mx-auto opacity-50 mb-3" />
-                <p>No messages yet.</p>
-                <p>Start a conversation by typing below!</p>
+              <div className="text-center text-muted-foreground text-sm py-8 space-y-4">
+                <div className="bg-primary/5 p-4 rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-4">
+                    <Bot className="h-10 w-10 text-primary opacity-80" />
+                </div>
+                <div className="space-y-2">
+                    <p className="font-semibold text-xl text-foreground">Welcome to Meridian Bank Support</p>
+                    <p className="text-muted-foreground w-3/4 mx-auto">How can I assist you with your financial needs today? I can help with accounts, loans, and more.</p>
+                </div>
               </div>
             )}
             
