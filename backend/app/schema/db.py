@@ -4,4 +4,4 @@ from schema.product import Product
 
 class Database(TypedDict):
     products: list[Product]
-    customer: list[Customer]
+    customers: list[Customer]

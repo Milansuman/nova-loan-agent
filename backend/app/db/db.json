@@ -46,6 +46,9 @@
             "full_name": "Priya Sharma",
             "kyc_status": "complete",
             "risk_flag": "none",
+            "pan": "ABCPS1234R",
+            "aadhar": "234567891234",
+            "phone": "9876543210",
             "credit_report": {
                 "credit_score": 780,
                 "active_loans": [],
@@ -59,6 +62,14 @@
                 "employment_tenure_months": 48,
                 "existing_monthly_emi": 0,
                 "average_bank_balance_6m": 285000
+            },
+            "eligibility": {
+                "eligible": true,
+                "max_approved_amount": 500000,
+                "requested_amount": 500000,
+                "debt_to_income_ratio": 0.09,
+                "rejection_reasons": [],
+                "policy_version": "v3.2.1"
             }
         },
         {
@@ -67,6 +78,9 @@
             "full_name": "Rahul Mehta",
             "kyc_status": "complete",
             "risk_flag": "none",
+            "pan": "ABCPM5678Q",
+            "aadhar": "567890123456",
+            "phone": "9823456789",
             "credit_report": {
                 "credit_score": 724,
                 "active_loans": [
@@ -86,6 +100,14 @@
                 "employment_tenure_months": 36,
                 "existing_monthly_emi": 12000,
                 "average_bank_balance_6m": 145000
+            },
+            "eligibility": {
+                "eligible": true,
+                "max_approved_amount": 420000,
+                "requested_amount": 500000,
+                "debt_to_income_ratio": 0.31,
+                "rejection_reasons": [],
+                "policy_version": "v3.2.1"
             }
         },
         {
@@ -94,6 +116,9 @@
             "full_name": "Arjun Reddy",
             "kyc_status": "complete",
             "risk_flag": "medium",
+            "pan": "ABCPP9012X",
+            "aadhar": "890123456789",
+            "phone": "9712345678",
             "credit_report": {
                 "credit_score": 580,
                 "active_loans": [
@@ -118,6 +143,18 @@
                 "employment_tenure_months": 18,
                 "existing_monthly_emi": 28000,
                 "average_bank_balance_6m": 42000
+            },
+            "eligibility": {
+                "eligible": false,
+                "max_approved_amount": 0,
+                "requested_amount": 500000,
+                "debt_to_income_ratio": 0.74,
+                "rejection_reasons": [
+                    "Credit score 580 is below minimum threshold of 620",
+                    "Self-employed tenure of 18 months is below required 24 months",
+                    "Debt-to-income ratio of 0.74 exceeds maximum of 0.50"
+                ],
+                "policy_version": "v3.2.1"
             }
         }
     ]

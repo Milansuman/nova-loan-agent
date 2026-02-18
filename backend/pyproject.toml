@@ -6,5 +6,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.129.0",
+    "langchain>=1.2.10",
+    "langchain-litellm>=0.5.1",
+    "langchain-openai>=1.1.9",
+    "netra-sdk>=0.1.67",
     "pydantic-settings>=2.13.0",
 ]
