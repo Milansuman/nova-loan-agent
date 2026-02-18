@@ -1,18 +1,8 @@
 from netra import Netra
 from netra.simulation import BaseTask, TaskResult
-from dotenv import load_dotenv
-import os
 from typing import Optional
 from uuid import uuid4
 from agent import get_response
-from db import get_db
-
-load_dotenv()
-
-NETRA_API_KEY = os.getenv("NETRA_API_KEY")
-if not NETRA_API_KEY:
-    raise ValueError("NETRA_API_KEY not set")
-
 
 class LoanAgentTask(BaseTask):
     
@@ -26,6 +16,7 @@ class LoanAgentTask(BaseTask):
             response = get_response(message, thread_id)
             final_message = response
         except Exception as e:
+            
             final_message = f"Error: {str(e)}"
 
         return TaskResult(
