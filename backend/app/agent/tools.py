@@ -2,8 +2,11 @@ from langchain.tools import tool
 from db import get_db
 from datetime import date, timedelta
 import logging
+from netra.decorators import task
+from netra import Netra
 
 @tool
+@task
 def verify_identity(identifier_type: str, identifier_value: str):
     """
     Verify customer identity using PAN, Aadhaar, or phone number. Must be called before any other tool.
@@ -22,6 +25,8 @@ def verify_identity(identifier_type: str, identifier_value: str):
             }
 
         [customer] = [customer for customer in db["customers"] if customer[identifier_type.lower()] == identifier_value]
+
+        Netra.set_user_id(customer["customer_id"])
 
         return {
             "verified": customer["verified"],
@@ -42,6 +47,7 @@ def verify_identity(identifier_type: str, identifier_value: str):
         }
 
 @tool
+@task
 def fetch_credit_report(customer_id: str):
     """
     Fetch credit score and loan history for a verified customer.
@@ -66,6 +72,7 @@ def fetch_credit_report(customer_id: str):
         }
     
 @tool
+@task
 def fetch_financial_profile(customer_id: str):
     """
     Fetch income, employment, and banking details for a verified customer.
@@ -90,6 +97,7 @@ def fetch_financial_profile(customer_id: str):
         }
     
 @tool
+@task
 def search_loan_products(approved_amount: int, credit_score: int, employment_type: str):
     """
     Search available loan products matching the customer's profile and approved amount
@@ -113,6 +121,7 @@ def search_loan_products(approved_amount: int, credit_score: int, employment_typ
         }
     
 @tool
+@task
 def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, existing_monthly_emi: int, requested_amount: int, employment_type: str, employment_tenure_months: int):
     """
     Check loan eligibility based on credit and financial profile. Returns maximum approved amount and a decision on eligibility.
@@ -144,6 +153,7 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
         }
     
 @tool
+@task
 def calculate_emi(principal: int, annual_rate_pct: int, tenure_months: int):
     """
     Calculate exact EMI for a given loan amount, interest rate, and tenure.
@@ -168,6 +178,7 @@ def calculate_emi(principal: int, annual_rate_pct: int, tenure_months: int):
         }
     
 @tool
+@task
 def generate_pre_approval(customer_id: str, product_id: str, amount: int, annual_rate_pct: float, tenure_months: int):
     """
     Generate a pre-approval reference for the selected loan product.
