@@ -24,8 +24,8 @@ class LoanAgentTask(BaseTask):
             session_id=thread_id
         )
     
-def run_simulation(dataset_id: str) -> None:
-    Netra.simulation.run_simulation( #type: ignore
+def run_simulation(dataset_id: str) -> dict | None:
+    return Netra.simulation.run_simulation( #type: ignore
         name="Loan Agent Simulation",
         dataset_id=dataset_id,
         task=LoanAgentTask()

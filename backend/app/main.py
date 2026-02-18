@@ -65,10 +65,11 @@ def chat(chat: ChatRequest, response: Response):
 @app.post("/simulation/{dataset_id}")
 def start_simulation(dataset_id: str, response: Response):
     try:
-        run_simulation(dataset_id)
-        return {
-            "message": "successfully started test run"
-        }
+        result = run_simulation(dataset_id)
+        if not result:
+            raise ValueError("Simulation failed")
+
+        return result
     except Exception as e:
         logging.error(msg=e)
         response.status_code = 500
