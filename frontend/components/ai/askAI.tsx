@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { MessageCircle, Send, Bot } from "lucide-react"
+import { MessageCircle, Send, Bot, Trash2 } from "lucide-react"
 
 type Message = {
   role: 'user' | 'ai'
@@ -22,6 +22,15 @@ export function AskAI() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, loading])
 
   const handleSend = async () => {
     if (!input.trim()) return
@@ -79,6 +88,11 @@ export function AskAI() {
     }
   }
 
+  const clearChat = () => {
+    setMessages([])
+    localStorage.removeItem("thread_id")
+  }
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -91,19 +105,21 @@ export function AskAI() {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] h-[600px] flex flex-col p-0 gap-0">
-        <div className="flex items-center gap-2 p-4 border-b bg-muted/50 rounded-t-lg">
-          <div className="bg-primary/10 p-2 rounded-full">
-            <Bot className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex flex-col">
-            <DialogTitle className="text-base">Ask AI Assistant</DialogTitle>
-            <DialogDescription className="text-xs">
-              Always here to help you
-            </DialogDescription>
+        <div className="flex items-center justify-between p-4 border-b bg-muted/50 rounded-t-lg">
+          <div className="flex items-center gap-2">
+            <div className="bg-primary/10 p-2 rounded-full">
+              <Bot className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex flex-col">
+              <DialogTitle className="text-base">Nova</DialogTitle>
+              <DialogDescription className="text-xs">
+                Always here to help you
+              </DialogDescription>
+            </div>
           </div>
         </div>
         
-        <ScrollArea className="flex-1 p-4">
+        <ScrollArea className="flex-1 p-4 h-0">
           <div className="flex flex-col gap-4">
             {messages.length === 0 && (
               <div className="text-center text-muted-foreground text-sm py-8 space-y-2">
@@ -127,7 +143,7 @@ export function AskAI() {
                 )}
                 
                 <div
-                  className={`rounded-2xl px-4 py-2 max-w-[80%] ${
+                  className={`rounded-2xl px-4 py-2 max-w-[80%] break-words ${
                     msg.role === 'user'
                       ? 'bg-primary text-primary-foreground rounded-br-none'
                       : 'bg-muted rounded-bl-none'
@@ -150,10 +166,12 @@ export function AskAI() {
                 </div>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
         
         <div className="p-3 border-t bg-background/50 flex gap-2 items-end">
+          
           <Input 
             value={input} 
             onChange={(e) => setInput(e.target.value)} 
@@ -162,6 +180,9 @@ export function AskAI() {
             className="flex-1 focus-visible:ring-1 min-h-[40px]"
             disabled={loading}
           />
+          <Button variant="ghost" size="icon" onClick={clearChat} title="Clear Chat" className="shrink-0">
+            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+          </Button>
           <Button 
             onClick={handleSend} 
             size="icon" 
