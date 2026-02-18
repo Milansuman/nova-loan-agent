@@ -145,7 +145,7 @@ export function AskAI() {
                 </div>
                 <div className="space-y-2">
                     <p className="font-semibold text-xl text-foreground">Welcome to Meridian Bank Support</p>
-                    <p className="text-muted-foreground w-3/4 mx-auto">How can I assist you with your financial needs today? I can help with accounts, loans, and more.</p>
+                    <p className="text-muted-foreground w-3/4 mx-auto">Get instant support for banking products, services, and account management inquiries.</p>
                 </div>
               </div>
             )}

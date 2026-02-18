@@ -154,7 +154,7 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
     
 @tool
 @task
-def calculate_emi(principal: int, annual_rate_pct: int, tenure_months: int):
+def calculate_emi(principal: int, annual_rate_pct: float, tenure_months: int):
     """
     Calculate exact EMI for a given loan amount, interest rate, and tenure.
 
@@ -166,7 +166,7 @@ def calculate_emi(principal: int, annual_rate_pct: int, tenure_months: int):
 
     try:
         r = annual_rate_pct/12/100
-        emi = (principal * r * (1+r)**tenure_months)/((1+r)*tenure_months - 1)
+        emi = principal * r * ((1+r)**tenure_months)/((1+r)**tenure_months - 1)
 
         return {
             "emi": emi
