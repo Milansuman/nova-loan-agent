@@ -2,7 +2,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field, model_validator
 
 class Environment(BaseSettings):
-    env_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    ENVIRONMENT: str = "dev"
     NETRA_API_KEY: str = Field()
     NETRA_OTLP_ENDPOINT: str = Field()
 

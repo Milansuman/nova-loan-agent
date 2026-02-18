@@ -1,6 +1,7 @@
 from langchain.tools import tool
-from db import db
+from db import get_db
 from datetime import date, timedelta
+import logging
 
 @tool
 def verify_identity(identifier_type: str, identifier_value: str):
@@ -13,7 +14,9 @@ def verify_identity(identifier_type: str, identifier_value: str):
     """
 
     try:
+        db = get_db()
         if identifier_type not in ["PAN", "AADHAR", "PHONE"]:
+            logging.error(f"Invalid identifier type: {identifier_type}, value: {identifier_value}")
             return {
                 "error": "invalid identifier type"
             }
@@ -27,11 +30,13 @@ def verify_identity(identifier_type: str, identifier_value: str):
             "kyc_status": customer["kyc_status"],
             "risk_flag": customer["risk_flag"]
         }
-    except IndexError:
+    except IndexError as e:
+        logging.error(f"verify_identity - Customer not found: identifier_type={identifier_type}, identifier_value={identifier_value}, error={e}")
         return {
             "error": "Customer does not exist"
         }
-    except Exception:
+    except Exception as e:
+        logging.error(f"verify_identity - Unexpected error: identifier_type={identifier_type}, identifier_value={identifier_value}, error={e}")
         return {
             "error": "An error occurred"
         }
@@ -46,13 +51,16 @@ def fetch_credit_report(customer_id: str):
     """
 
     try:
+        db = get_db()
         [customer] = [customer for customer in db["customers"] if customer["customer_id"] == customer_id]
         return customer["credit_report"]
-    except IndexError:
+    except IndexError as e:
+        logging.error(f"fetch_credit_report - Customer not found: customer_id={customer_id}, error={e}")
         return {
             "error": "Customer does not exist"
         }
-    except Exception:
+    except Exception as e:
+        logging.error(f"fetch_credit_report - Unexpected error: customer_id={customer_id}, error={e}")
         return {
             "error": "An error occurred"
         }
@@ -67,13 +75,16 @@ def fetch_financial_profile(customer_id: str):
     """
 
     try:
+        db = get_db()
         [customer] = [customer for customer in db["customers"] if customer["customer_id"] == customer_id]
         return customer["financial_profile"]
-    except IndexError:
+    except IndexError as e:
+        logging.error(f"fetch_financial_profile - Customer not found: customer_id={customer_id}, error={e}")
         return {
             "error": "Customer does not exist"
         }
-    except Exception:
+    except Exception as e:
+        logging.error(f"fetch_financial_profile - Unexpected error: customer_id={customer_id}, error={e}")
         return {
             "error": "An error occurred"
         }
@@ -89,12 +100,14 @@ def search_loan_products(approved_amount: int, credit_score: int, employment_typ
         employment_type (str): Type of employment (e.g., "salaried", "self-employed", "business")
     """
     try:
+        db = get_db()
         products = [product for product in db["products"] if product["min_credit_score"] <= credit_score]
 
         return {
             "loan_products": products
         }
-    except Exception:
+    except Exception as e:
+        logging.error(f"search_loan_products - Error: approved_amount={approved_amount}, credit_score={credit_score}, employment_type={employment_type}, error={e}")
         return {
             "error": "An error occurred"
         }
@@ -115,14 +128,17 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
     """
 
     try:
+        db = get_db()
         [customer] = [customer for customer in db["customers"] if customer["customer_id"] == customer_id]
 
         return customer["eligibility"]
-    except IndexError:
+    except IndexError as e:
+        logging.error(f"check_eligibility - Customer not found: customer_id={customer_id}, error={e}")
         return {
             "error": "Customer does not exist"
         }
-    except Exception:
+    except Exception as e:
+        logging.error(f"check_eligibility - Unexpected error: customer_id={customer_id}, credit_score={credit_score}, monthly_income={monthly_income}, requested_amount={requested_amount}, error={e}")
         return {
             "error": "An error occurred"
         }
@@ -145,7 +161,8 @@ def calculate_emi(principal: int, annual_rate_pct: int, tenure_months: int):
         return {
             "emi": emi
         }
-    except Exception:
+    except Exception as e:
+        logging.error(f"calculate_emi - Error: principal={principal}, annual_rate_pct={annual_rate_pct}, tenure_months={tenure_months}, error={e}")
         return {
             "error": "An error occurred"
         }
@@ -163,14 +180,20 @@ def generate_pre_approval(customer_id: str, product_id: str, amount: int, annual
         tenure_months (int): The loan tenure or duration in months.
     """
 
-    return {
-        "pre_approval_id": "PA-2026-00142",
-        "status": "pre_approved",
-        "valid_until": date.today() + timedelta(days=7),
-        "disclaimer": "This pre-approval is subject to final verification and does not guarantee loan disbursal. Please visit your nearest Meridian Bank branch with original documents to complete the application.",
-        "next_steps": [
-            "Visit nearest Meridian Bank branch with original PAN and Aadhaar",
-            "Carry latest 3 months salary slips and bank statements",
-            "Complete full application within 30 days of this pre-approval"
-        ]
-    }
+    try:
+        return {
+            "pre_approval_id": "PA-2026-00142",
+            "status": "pre_approved",
+            "valid_until": date.today() + timedelta(days=7),
+            "disclaimer": "This pre-approval is subject to final verification and does not guarantee loan disbursal. Please visit your nearest Meridian Bank branch with original documents to complete the application.",
+            "next_steps": [
+                "Visit nearest Meridian Bank branch with original PAN and Aadhaar",
+                "Carry latest 3 months salary slips and bank statements",
+                "Complete full application within 30 days of this pre-approval"
+            ]
+        }
+    except Exception as e:
+        logging.error(f"generate_pre_approval - Error: customer_id={customer_id}, product_id={product_id}, amount={amount}, annual_rate_pct={annual_rate_pct}, tenure_months={tenure_months}, error={e}")
+        return {
+            "error": "An error occurred"
+        }
