@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Response
+from fastapi.middleware.cors import CORSMiddleware
 from schema.chat_request import ChatRequest
 from agent import get_response
 import logging
@@ -6,7 +7,7 @@ import uuid
 import uvicorn
 from config import env
 from contextlib import asynccontextmanager
-from db import init_db, db
+from db import init_db
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,6 +23,14 @@ async def lifespan(app: FastAPI):
     logging.info("Shutting down application")
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:8000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+) 
 
 @app.post("/chat")
 def chat(chat: ChatRequest, response: Response):
