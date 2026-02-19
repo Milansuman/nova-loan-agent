@@ -13,7 +13,7 @@
                 60
             ],
             "processing_fee_pct": 1.5,
-            "max_amount": 420000
+            "max_amount": 500000
         },
         {
             "product_id": "PRIME",
