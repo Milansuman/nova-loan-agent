@@ -114,7 +114,7 @@ export function AskAI() {
       <DialogContent className="sm:max-w-[500px] md:max-w-[700px] h-[600px] md:h-[700px] flex flex-col p-0 gap-0">
         <DialogTitle className="sr-only">Chat with AI Assistant</DialogTitle>
         <DialogDescription className="sr-only">Ask questions about Meridian Bank services and get instant support.</DialogDescription>
-        <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10 rounded-t-md">
           <div className="flex items-center gap-2">
             <div className="bg-primary/10 p-2 rounded-lg">
               <Bot className="h-5 w-5 text-primary" />
