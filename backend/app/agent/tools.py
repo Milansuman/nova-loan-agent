@@ -146,7 +146,7 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
 
         eligibility_payload = {
             "eligible": True,
-            "max_approved_amount": min(requested_amount, eligible_loan_products[-1]["max_amount"]),
+            "max_approved_amount": 0,
             "requested_amount": requested_amount,
             "debt_to_income_ratio": dti,
             "rejection_reasons": [],
@@ -160,14 +160,17 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
         if len(eligible_loan_products) == 0:
             eligibility_payload["eligible"] = False
             eligibility_payload["rejection_reasons"].append(f"Credit score {credit_score} is below minimum threshold of 600")
+        else:
+            eligibility_payload["max_approved_amount"] = min(requested_amount, eligible_loan_products[-1]["max_amount"])
 
         if len(eligible_loan_products_by_tenure) == 0:
             eligibility_payload["eligible"] = False
             eligibility_payload["rejection_reasons"].append(f"{employment_type} tenure of {employment_tenure_months} months is below required 1 year")
 
-        if eligible_loan_products[-1]["max_amount"] < requested_amount:
+        if len(eligible_loan_products) > 0 and eligible_loan_products[-1]["max_amount"] < requested_amount:
             eligibility_payload["eligible"] = False
             eligibility_payload["rejection_reasons"].append(f"Requested amount of Rs.{requested_amount} is more than the maximum loanable amount")
+
     
         return eligibility_payload
     except IndexError as e:
