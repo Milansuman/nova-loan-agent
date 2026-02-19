@@ -17,21 +17,20 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
+Netra.init(
+    app_name="Nova Agent",
+    block_instruments={InstrumentSet.FASTAPI} #type: ignore
+)
+
+Netra.set_tenant_id("Nova")
+
+logging.info("Initialised Netra")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logging.info("Starting application - initializing database")
     init_db()
     logging.info("Mock DB has been initialized successfully")
-
-    Netra.init(
-        app_name="Nova Agent",
-        block_instruments={InstrumentSet.FASTAPI} #type: ignore
-    )
-
-    Netra.set_tenant_id("Nova")
-
-    logging.info("Initialised Netra")
-
     yield
     logging.info("Shutting down application")
 
