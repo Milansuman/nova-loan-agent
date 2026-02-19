@@ -12,7 +12,8 @@
                 48,
                 60
             ],
-            "processing_fee_pct": 1.5
+            "processing_fee_pct": 1.5,
+            "max_amount": 500000
         },
         {
             "product_id": "PRIME",
@@ -24,7 +25,8 @@
                 36,
                 48
             ],
-            "processing_fee_pct": 1.0
+            "processing_fee_pct": 1.0,
+            "max_amount": 500000
         },
         {
             "product_id": "VALUE",
@@ -36,7 +38,8 @@
                 24,
                 36
             ],
-            "processing_fee_pct": 2.0
+            "processing_fee_pct": 2.0,
+            "max_amount": 500000
         }
     ],
     "customers": [

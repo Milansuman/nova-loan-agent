@@ -7,3 +7,4 @@ class Product(TypedDict):
     min_credit_score: int
     available_tenures_months: list[int]
     processing_fee_pct: float
+    max_amount: int
