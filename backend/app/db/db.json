@@ -12,7 +12,8 @@
                 48,
                 60
             ],
-            "processing_fee_pct": 1.5
+            "processing_fee_pct": 1.5,
+            "max_amount": 500000
         },
         {
             "product_id": "PRIME",
@@ -24,7 +25,8 @@
                 36,
                 48
             ],
-            "processing_fee_pct": 1.0
+            "processing_fee_pct": 1.0,
+            "max_amount": 500000
         },
         {
             "product_id": "VALUE",
@@ -36,7 +38,8 @@
                 24,
                 36
             ],
-            "processing_fee_pct": 2.0
+            "processing_fee_pct": 2.0,
+            "max_amount": 500000
         }
     ],
     "customers": [
@@ -100,20 +103,12 @@
                 "employment_tenure_months": 36,
                 "existing_monthly_emi": 12000,
                 "average_bank_balance_6m": 145000
-            },
-            "eligibility": {
-                "eligible": true,
-                "max_approved_amount": 420000,
-                "requested_amount": 500000,
-                "debt_to_income_ratio": 0.31,
-                "rejection_reasons": [],
-                "policy_version": "v3.2.1"
             }
         },
         {
             "verified": true,
             "customer_id": "CUST-003",
-            "full_name": "Arjun Reddy",
+            "full_name": "Arjun Paul",
             "kyc_status": "complete",
             "risk_flag": "medium",
             "pan": "ABCPP9012X",
@@ -143,18 +138,31 @@
                 "employment_tenure_months": 18,
                 "existing_monthly_emi": 28000,
                 "average_bank_balance_6m": 42000
-            },
-            "eligibility": {
-                "eligible": false,
-                "max_approved_amount": 0,
-                "requested_amount": 500000,
-                "debt_to_income_ratio": 0.74,
-                "rejection_reasons": [
-                    "Credit score 580 is below minimum threshold of 620",
-                    "Self-employed tenure of 18 months is below required 24 months",
-                    "Debt-to-income ratio of 0.74 exceeds maximum of 0.50"
+            }
+        },
+        {
+            "verified": true,
+            "customer_id": "CUST-004",
+            "full_name": "Meera Iyer",
+            "kyc_status": "complete",
+            "risk_flag": "none",
+            "pan": "ABCPI7890M",
+            "aadhar": "890123456780",
+            "phone": "9712345670",
+            "credit_report": {
+                "credit_score": 710,
+                "active_loans": [
                 ],
-                "policy_version": "v3.2.1"
+                "defaults_last_3_years": 0,
+                "credit_utilization_pct": 29
+            },
+            "financial_profile": {
+                "monthly_income": 55000,
+                "employer": "Wipro",
+                "employment_type": "salaried",
+                "employment_tenure_months": 14,
+                "existing_monthly_emi": 0,
+                "average_bank_balance_6m": 98000
             }
         }
     ]

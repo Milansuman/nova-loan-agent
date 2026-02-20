@@ -13,6 +13,8 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 import { MessageCircle, Send, Bot, Trash2, X } from "lucide-react"
+import Markdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 
 type Message = {
   role: 'user' | 'ai'
@@ -112,7 +114,7 @@ export function AskAI() {
       <DialogContent className="sm:max-w-[500px] md:max-w-[700px] h-[600px] md:h-[700px] flex flex-col p-0 gap-0">
         <DialogTitle className="sr-only">Chat with AI Assistant</DialogTitle>
         <DialogDescription className="sr-only">Ask questions about Meridian Bank services and get instant support.</DialogDescription>
-        <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="flex items-center justify-between p-4 border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10 rounded-t-md">
           <div className="flex items-center gap-2">
             <div className="bg-primary/10 p-2 rounded-lg">
               <Bot className="h-5 w-5 text-primary" />
@@ -164,13 +166,13 @@ export function AskAI() {
                 )}
                 
                 <div
-                  className={`rounded-2xl px-4 py-2 max-w-[80%] break-words whitespace-pre-line ${
+                  className={`rounded-2xl px-4 py-2 max-w-[80%] break-words prose-strong:text-foreground prose prose-p:my-0 prose-table:my-1 prose:text-sm text-foreground prose-th:text-foreground ${
                     msg.role === 'user'
                       ? 'bg-primary text-primary-foreground rounded-br-none'
                       : 'bg-muted rounded-bl-none'
                   }`}
                 >
-                  {msg.content}
+                  <Markdown remarkPlugins={[remarkGfm]}>{msg.content}</Markdown>
                 </div>
               </div>
             ))}

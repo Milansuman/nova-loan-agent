@@ -122,7 +122,7 @@ def search_loan_products(approved_amount: int, credit_score: int, employment_typ
     
 @tool
 @task
-def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, existing_monthly_emi: int, requested_amount: int, employment_type: str, employment_tenure_months: int):
+def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, existing_monthly_emi: int, requested_amount: int, employment_type: str, loan_tenure_months: int):
     """
     Check loan eligibility based on credit and financial profile. Returns maximum approved amount and a decision on eligibility.
 
@@ -133,7 +133,7 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
         existing_monthly_emi (int): The customer's existing monthly EMI obligations
         requested_amount (int): The loan amount requested by the customer
         employment_type (str): Type of employment
-        employment_tenure_months (int): Duration of current employment in months
+        loan_tenure_months (int): Requested loan tenure in months
     """
 
     try:
@@ -141,12 +141,12 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
         [customer] = [customer for customer in db["customers"] if customer["customer_id"] == customer_id]
 
         dti = customer["credit_report"]["defaults_last_3_years"] / monthly_income
-        eligible_loan_products = [product for product in db["products"] if product["min_credit_score"] <= credit_score]
-        eligible_loan_products_by_tenure = [product for product in eligible_loan_products if employment_tenure_months in product["available_tenures_months"]]
+        eligible_loan_products = sorted([product for product in db["products"] if product["min_credit_score"] <= credit_score], key=lambda product: product["max_amount"])
+        eligible_loan_products_by_tenure = [product for product in db["products"] if loan_tenure_months in product["available_tenures_months"]]
 
         eligibility_payload = {
             "eligible": True,
-            "max_approved_amount": customer["eligibility"]["max_approved_amount"],
+            "max_approved_amount": 0,
             "requested_amount": requested_amount,
             "debt_to_income_ratio": dti,
             "rejection_reasons": [],
@@ -159,11 +159,18 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
         
         if len(eligible_loan_products) == 0:
             eligibility_payload["eligible"] = False
-            eligibility_payload["rejection_reasons"].append(f"Credit score {credit_score} is below minimum threshold of 620")
+            eligibility_payload["rejection_reasons"].append(f"Credit score {credit_score} is below minimum threshold of 600")
+        else:
+            eligibility_payload["max_approved_amount"] = min(requested_amount, eligible_loan_products[-1]["max_amount"])
 
         if len(eligible_loan_products_by_tenure) == 0:
             eligibility_payload["eligible"] = False
-            eligibility_payload["rejection_reasons"].append(f"{employment_type} tenure of {employment_tenure_months} months is below required 12 months")
+            eligibility_payload["rejection_reasons"].append(f"Requested tenure of {loan_tenure_months} months is not available.")
+
+        if len(eligible_loan_products) > 0 and eligible_loan_products[-1]["max_amount"] < requested_amount:
+            eligibility_payload["eligible"] = False
+            eligibility_payload["rejection_reasons"].append(f"Requested amount of Rs.{requested_amount} is more than the maximum loanable amount")
+
     
         return eligibility_payload
     except IndexError as e:
