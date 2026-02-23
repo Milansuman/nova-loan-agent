@@ -20,6 +20,7 @@ logging.basicConfig(
 Netra.init(
     app_name="Nova Agent",
     environment=env.ENVIRONMENT,
+    debug_mode=True,
     block_instruments={InstrumentSet.FASTAPI} #type: ignore
 )
 
