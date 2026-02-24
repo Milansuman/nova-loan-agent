@@ -9,6 +9,7 @@ from config import env
 from contextlib import asynccontextmanager
 from db import init_db
 from netra import Netra
+from netra.version import __version__ as netra_version
 from netra.instrumentation.instruments import InstrumentSet
 from services.simulation import run_simulation
 
@@ -27,7 +28,7 @@ Netra.init(
 
 Netra.set_tenant_id("Nova")
 
-logging.info("Initialised Netra")
+logging.info(f"Initialised Netra v{netra_version}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
