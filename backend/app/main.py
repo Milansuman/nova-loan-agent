@@ -23,7 +23,7 @@ Netra.init(
     environment=env.ENVIRONMENT,
     headers=f"x-api-key={env.NETRA_API_KEY}",
     debug_mode=True,
-    block_instruments={InstrumentSet.FASTAPI} #type: ignore
+    block_instruments={InstrumentSet.FASTAPI, InstrumentSet.LANGCHAIN, InstrumentSet.LITELLM, InstrumentSet.OPENAI, InstrumentSet.REQUESTS, InstrumentSet.HTTPX} #type: ignore
 )
 
 Netra.set_tenant_id("Nova")
