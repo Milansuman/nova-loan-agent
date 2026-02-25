@@ -16,6 +16,7 @@ from netra.decorators import agent
 from netra import Netra, ConversationType, SpanType, UsageModel
 from langgraph.runtime import Runtime
 from langchain.messages import AnyMessage
+import logging
 
 @after_agent
 def netra_conversation_middleware(state: AgentState, runtime: Runtime):
@@ -108,14 +109,21 @@ def trace_conversation(thread_id: str):
 
         for message in messages:
             if message.type == "human":
+                logging.info(f"{thread_id}: Processing human message: {message.text}")
                 Netra.add_conversation(
                     conversation_type=ConversationType.INPUT,
                     content=message.text,
                     role="User"
                 )
             elif message.type == "ai":
-
+                logging.info(f"{thread_id}: Processing AI message: {message.text}")
                 if len(message.text) > 0:
+                    Netra.add_conversation(
+                        conversation_type=ConversationType.OUTPUT,
+                        content=message.text,
+                        role="Ai"
+                    )
+                    
                     with Netra.start_span("Agent Response", as_type=SpanType.GENERATION) as response_span:
                         response_span.set_model("gpt-4.1")
 
@@ -133,12 +141,6 @@ def trace_conversation(thread_id: str):
 
                         response_span.set_usage([input_usage, output_usage])
                         response_span.set_attribute("completion", message.text)
-
-                        Netra.add_conversation(
-                            conversation_type=ConversationType.OUTPUT,
-                            content=message.text,
-                            role="Ai"
-                        )
                         
                 for tool_call in message.tool_calls:
                     tool_calls[tool_call["id"]] = {
@@ -152,6 +154,7 @@ def trace_conversation(thread_id: str):
                         role="Tool Call"
                     )
             elif message.type == "tool":
+                logging.info(f"{thread_id}: Processing tool output: {message.content}")
                 tool_calls[message.tool_call_id]["output"] = message.content
 
                 with Netra.start_span(tool_calls[message.tool_call_id]["name"], as_type=SpanType.TOOL) as tool_span:
@@ -165,6 +168,7 @@ def trace_conversation(thread_id: str):
                     role="Tool Output"
                 )
             elif message.type == "system":
+                logging.info(f"{thread_id}: Processing system message: {message.text}")
                 Netra.add_conversation(
                     conversation_type=ConversationType.INPUT,
                     content=SYSTEM_PROMPT,
