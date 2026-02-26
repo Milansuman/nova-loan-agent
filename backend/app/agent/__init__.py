@@ -21,6 +21,7 @@ from langgraph.runtime import Runtime
 from langchain.messages import AnyMessage
 import logging
 import re
+from langgraph.types import Overwrite
 
 @after_agent
 def verify_agent_response(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
@@ -85,9 +86,11 @@ Return ONLY the corrected response text, nothing else.
             
             logging.info(f"Amount verification - Original: {ai_message[:100]}... | Corrected: {corrected_text[:100]}...")
             
-            # Modify the last message content
-            last_message.content = corrected_text
-            return None  # State is modified in place
+            updated_messages = state["messages"].copy()
+
+            updated_messages[-1] = AIMessage(content=corrected_text, tool_calls=last_message.tool_calls, usage_metadata=last_message.usage_metadata)
+            
+            return {"messages": Overwrite(updated_messages)}
         except Exception as e:
             logging.error(f"Amount verification failed: {e}")
             return None
@@ -154,7 +157,7 @@ def trace_conversation(thread_id: str, messages: list[AnyMessage] | None = None)
 
         tool_calls = {}
 
-        logging.info(f"{thread_id}: Processing system message: {SYSTEM_PROMPT}")
+        # logging.info(f"{thread_id}: Processing system message: {SYSTEM_PROMPT}")
         Netra.add_conversation(
             conversation_type=ConversationType.INPUT,
             content=SYSTEM_PROMPT,
@@ -163,14 +166,14 @@ def trace_conversation(thread_id: str, messages: list[AnyMessage] | None = None)
 
         for message in messages:
             if message.type == "human":
-                logging.info(f"{thread_id}: Processing human message: {message.text}")
+                # logging.info(f"{thread_id}: Processing human message: {message.text}")
                 Netra.add_conversation(
                     conversation_type=ConversationType.INPUT,
                     content=message.text,
                     role="User"
                 )
             elif message.type == "ai":
-                logging.info(f"{thread_id}: Processing AI message: {message.text}")
+                # logging.info(f"{thread_id}: Processing AI message: {message.text}")
                 if len(message.text) > 0:
                     Netra.add_conversation(
                         conversation_type=ConversationType.OUTPUT,
@@ -208,7 +211,7 @@ def trace_conversation(thread_id: str, messages: list[AnyMessage] | None = None)
                         role="Tool Call"
                     )
             elif message.type == "tool":
-                logging.info(f"{thread_id}: Processing tool output: {message.content}")
+                # logging.info(f"{thread_id}: Processing tool output: {message.content}")
                 tool_calls[message.tool_call_id]["output"] = message.content
 
                 with Netra.start_span(tool_calls[message.tool_call_id]["name"], as_type=SpanType.TOOL) as tool_span:
