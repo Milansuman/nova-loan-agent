@@ -107,6 +107,13 @@ def trace_conversation(thread_id: str):
 
         tool_calls = {}
 
+        logging.info(f"{thread_id}: Processing system message: {SYSTEM_PROMPT}")
+        Netra.add_conversation(
+            conversation_type=ConversationType.INPUT,
+            content=SYSTEM_PROMPT,
+            role="System"
+        )
+
         for message in messages:
             if message.type == "human":
                 logging.info(f"{thread_id}: Processing human message: {message.text}")
@@ -166,11 +173,4 @@ def trace_conversation(thread_id: str):
                     conversation_type=ConversationType.OUTPUT,
                     content=message.content,
                     role="Tool Output"
-                )
-            elif message.type == "system":
-                logging.info(f"{thread_id}: Processing system message: {message.text}")
-                Netra.add_conversation(
-                    conversation_type=ConversationType.INPUT,
-                    content=SYSTEM_PROMPT,
-                    role="System"
                 )

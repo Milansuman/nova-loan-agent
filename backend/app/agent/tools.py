@@ -4,6 +4,7 @@ from datetime import date, timedelta
 import logging
 from netra.decorators import task
 from netra import Netra
+import math
 
 @tool
 # @task
@@ -144,10 +145,12 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
         eligible_loan_products = sorted([product for product in db["products"] if product["min_credit_score"] <= credit_score], key=lambda product: product["max_amount"])
         eligible_loan_products_by_tenure = [product for product in db["products"] if loan_tenure_months in product["available_tenures_months"]]
 
+        appr_requested_amount = math.ceil(requested_amount / 100000) * 100000
+
         eligibility_payload = {
             "eligible": True,
             "max_approved_amount": 0,
-            "requested_amount": requested_amount,
+            "requested_amount": appr_requested_amount,
             "debt_to_income_ratio": dti,
             "rejection_reasons": [],
             "policy_version": "v3.2.1"
@@ -161,7 +164,7 @@ def check_eligibility(customer_id: str, credit_score: int, monthly_income: int, 
             eligibility_payload["eligible"] = False
             eligibility_payload["rejection_reasons"].append(f"Credit score {credit_score} is below minimum threshold of 600")
         else:
-            eligibility_payload["max_approved_amount"] = min(requested_amount, eligible_loan_products[-1]["max_amount"])
+            eligibility_payload["max_approved_amount"] = min(appr_requested_amount, eligible_loan_products[-1]["max_amount"])
 
         if len(eligible_loan_products_by_tenure) == 0:
             eligibility_payload["eligible"] = False
