@@ -131,15 +131,21 @@ def get_response(prompt: str, thread_id: str):
         }
     })
 
-    trace_conversation(thread_id)
+    # Pass the actual response messages which include middleware modifications
+    trace_conversation(thread_id, response["messages"])
     return response["messages"][-1].text
 
-def trace_conversation(thread_id: str):
-    messages: list[AnyMessage] = _agent.get_state({
-        "configurable": {
-            "thread_id": thread_id
-        }
-    }).values["messages"]
+def trace_conversation(thread_id: str, messages: list[AnyMessage] | None = None):
+    # Use provided messages or fetch from state
+    if messages is None:
+        messages = _agent.get_state({
+            "configurable": {
+                "thread_id": thread_id
+            }
+        }).values["messages"]
+    
+    # Type guard to ensure messages is not None
+    assert messages is not None, "Messages should not be None"
 
     with Netra.start_span("Nova", as_type=SpanType.AGENT) as agent_span:
         Netra.set_session_id(thread_id)
