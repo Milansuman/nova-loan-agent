@@ -1,6 +1,9 @@
 from langchain.agents import create_agent
-from langchain.agents.middleware import after_agent, AgentState, ModelResponse, ModelRetryMiddleware
+from langchain.agents.middleware import after_agent, AgentState, ModelRetryMiddleware
 from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.runtime import Runtime
+from langchain.messages import AIMessage
+from typing import Any
 from agent.llm import llm
 from agent.prompt import SYSTEM_PROMPT
 from agent.tools import (
@@ -17,41 +20,79 @@ from netra import Netra, ConversationType, SpanType, UsageModel
 from langgraph.runtime import Runtime
 from langchain.messages import AnyMessage
 import logging
+import re
 
 @after_agent
-def netra_conversation_middleware(state: AgentState, runtime: Runtime):
-    Netra.add_conversation(
-        conversation_type=ConversationType.INPUT,
-        content=SYSTEM_PROMPT,
-        role="System"
-    )
-
+def verify_agent_response(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
+    """Verify if check_eligibility tool was called and AI response contains lakh figures."""
+    has_eligibility_check = False
+    eligibility_output = None
+    
+    # Check if check_eligibility tool was called in this turn
     for message in state["messages"]:
-        if message.type == "human":
-            Netra.add_conversation(
-                conversation_type=ConversationType.INPUT,
-                content=message.text,
-                role="User"
-            )
-        elif message.type == "ai":
-            Netra.add_conversation(
-                conversation_type=ConversationType.OUTPUT,
-                content=message.text,
-                role="Ai"
-            )
-
+        # Only AIMessage has tool_calls
+        if isinstance(message, AIMessage) and hasattr(message, "tool_calls"):
             for tool_call in message.tool_calls:
-                Netra.add_conversation(
-                    conversation_type=ConversationType.INPUT,
-                    content=f"""{tool_call["name"]}({tool_call["args"]})""",
-                    role="Tool Call"
-                )
-        elif message.type == "tool":
-            Netra.add_conversation(
-                conversation_type=ConversationType.OUTPUT,
-                content=message.content,
-                role="Tool Output"
-            )
+                if tool_call.get("name") == "check_eligibility":
+                    has_eligibility_check = True
+        if hasattr(message, "type") and message.type == "tool" and hasattr(message, "name"):
+            if message.name == "check_eligibility":
+                eligibility_output = message.content
+    
+    # Get the last AI message
+    if not state["messages"]:
+        return None
+    
+    last_message = state["messages"][-1]
+    if not isinstance(last_message, AIMessage):
+        return None
+    
+    ai_message = last_message.content
+    # Handle case where content might not be a string
+    if not isinstance(ai_message, str):
+        return None
+    
+    # Check if AI response contains lakh figures (e.g., "5 lakhs", "5L", "Rs. 5 lakh") or Indian numeric format (5,00,000)
+    lakh_pattern = r'\d+\.?\d*\s*(?:lakh|lakhs|L\b)|\d{1,3}(?:,\d{2}){2,}(?:,\d{3})*'
+    contains_lakh = bool(re.search(lakh_pattern, ai_message, re.IGNORECASE))
+    
+    if has_eligibility_check and contains_lakh and eligibility_output:
+        # Ask LLM to verify and correct the amounts
+        verification_prompt = f"""
+You are verifying a loan agent's response for accuracy.
+
+Tool Output from check_eligibility:
+{eligibility_output}
+
+Agent's Response:
+{ai_message}
+
+Task: Check if the agent's response correctly uses the amounts from the tool output. 
+Specifically verify:
+1. The approved/maximum amount matches the tool output
+2. Any amount figures in lakhs are correctly converted from the tool output
+3. The agent hasn't invented or miscalculated any amounts
+
+If the response is correct, return it as-is.
+If incorrect, return a corrected version that accurately reflects the tool output data.
+
+Return ONLY the corrected response text, nothing else.
+"""
+        
+        try:
+            corrected_response = llm.invoke([{"role": "user", "content": verification_prompt}])
+            corrected_text = corrected_response.content if hasattr(corrected_response, "content") else str(corrected_response)
+            
+            logging.info(f"Amount verification - Original: {ai_message[:100]}... | Corrected: {corrected_text[:100]}...")
+            
+            # Modify the last message content
+            last_message.content = corrected_text
+            return None  # State is modified in place
+        except Exception as e:
+            logging.error(f"Amount verification failed: {e}")
+            return None
+    
+    return None
 
 _agent = create_agent(
     model=llm,
@@ -67,7 +108,7 @@ _agent = create_agent(
     ],
     checkpointer=InMemorySaver(),
     middleware=[
-        # netra_conversation_middleware, 
+        verify_agent_response,
         ModelRetryMiddleware(
             max_delay=2,
             max_retries=5
