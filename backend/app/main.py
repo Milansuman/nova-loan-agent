@@ -12,6 +12,7 @@ from netra import Netra
 from netra.version import __version__ as netra_version
 from netra.instrumentation.instruments import InstrumentSet
 from services.simulation import run_simulation
+from services.evaluation import run_evaluation
 
 logging.basicConfig(
     level=logging.INFO,
@@ -80,6 +81,21 @@ def start_simulation(dataset_id: str, response: Response):
             "error": "An error occurred"
         }
     
+@app.post("/single-turn/{dataset_id}")
+def run_single_turn_evaluation(dataset_id: str, response: Response):
+    try:
+        result = run_evaluation(dataset_id)
+        if not result:
+            raise ValueError("Evaluation failed")
+
+        return result
+    except Exception as e:
+        logging.error(msg=e)
+        response.status_code = 500
+        return {
+            "error": "An error occurred"
+        }
+
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
