@@ -53,8 +53,9 @@ def verify_agent_response(state: AgentState, runtime: Runtime) -> dict[str, Any]
     if not isinstance(ai_message, str):
         return None
     
-    # Check if AI response contains lakh figures (e.g., "5 lakhs", "5L", "Rs. 5 lakh") or Indian numeric format (5,00,000)
-    lakh_pattern = r'\d+\.?\d*\s*(?:lakh|lakhs|L\b)|\d{1,3}(?:,\d{2}){2,}(?:,\d{3})*'
+    # Check if AI response contains lakh figures (e.g., "5 lakhs", "5L", "Rs. 5 lakh")
+    # or any large number (5+ digits), with or without comma/dot thousand separators
+    lakh_pattern = r'\d+\.?\d*\s*(?:lakh|lakhs|L\b)|\d{1,3}(?:[,.]?\d{2,3})+'
     contains_lakh = bool(re.search(lakh_pattern, ai_message, re.IGNORECASE))
     
     if has_eligibility_check and contains_lakh and eligibility_output:
