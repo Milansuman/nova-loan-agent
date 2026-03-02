@@ -1,2 +1,2 @@
 echo "Running simulation..."
-curl -X POST "http://localhost:8000/simulation/336d6b14-8a79-4f5a-9701-5bc4f51bc86c"
+curl -X POST "http://localhost:8000/simulation/954a29e4-759d-417d-8235-bfff6ce8e187"
