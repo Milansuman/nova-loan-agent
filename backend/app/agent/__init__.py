@@ -164,8 +164,10 @@ def trace_conversation(thread_id: str, messages: list[AnyMessage] | None = None)
             content=SYSTEM_PROMPT,
             role="System"
         )
+        agent_span.set_attribute("gen_ai.system.role", "system")
+        agent_span.set_attribute("gen_ai.system.content", SYSTEM_PROMPT)
 
-        for message in messages:
+        for i, message in enumerate(messages):
             if message.type == "human":
                 # logging.info(f"{thread_id}: Processing human message: {message.text}")
                 Netra.add_conversation(
@@ -173,14 +175,19 @@ def trace_conversation(thread_id: str, messages: list[AnyMessage] | None = None)
                     content=message.text,
                     role="User"
                 )
+                agent_span.set_attribute(f"gen_ai.prompt.{i}.role", "user")
+                agent_span.set_attribute(f"gen_ai.prompt.{i}.content", message.text)
             elif message.type == "ai":
                 # logging.info(f"{thread_id}: Processing AI message: {message.text}")
+                agent_span.set_attribute(f"gen_ai.completion.{i}.role", "assistant")
                 if len(message.text) > 0:
                     Netra.add_conversation(
                         conversation_type=ConversationType.OUTPUT,
                         content=message.text,
                         role="Ai"
                     )
+                    agent_span.set_attribute(f"gen_ai.completion.{i}.content", message.text)
+                    agent_span.set_attribute(f"gen_ai.completion.{i}.role", "assistant")
                     
                     with Netra.start_span("Agent Response", as_type=SpanType.GENERATION) as response_span:
                         response_span.set_model("gpt-4.1")
@@ -200,7 +207,7 @@ def trace_conversation(thread_id: str, messages: list[AnyMessage] | None = None)
                         response_span.set_usage([input_usage, output_usage])
                         response_span.set_attribute("completion", message.text)
                         
-                for tool_call in message.tool_calls:
+                for _, tool_call in enumerate(message.tool_calls):
                     tool_calls[tool_call["id"]] = {
                         "name": tool_call["name"],
                         "args": tool_call["args"]
@@ -225,3 +232,7 @@ def trace_conversation(thread_id: str, messages: list[AnyMessage] | None = None)
                     content=message.content,
                     role="Tool Output"
                 )
+                agent_span.set_attribute(f"gen_ai.completion.{i}.role", "tool")
+                agent_span.set_attribute(f"gen_ai.completion.{i}.tool_call_id", message.tool_call_id)
+                agent_span.set_attribute(f"gen_ai.completion.{i}.name", tool_calls[message.tool_call_id]["name"])
+                agent_span.set_attribute(f"gen_ai.completion.{i}.content", str(message.content))
