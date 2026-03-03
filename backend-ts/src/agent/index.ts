@@ -157,7 +157,7 @@ async function traceConversation(threadId: string, messages: BaseMessage[]) {
     const toolCalls: Record<string, any> = {};
 
     for (const message of messages) {
-      const type = message._getType();
+      const type = message.type;
       if (type === "human") {
         Netra.addConversation(
           ConversationType.INPUT,
@@ -175,7 +175,7 @@ async function traceConversation(threadId: string, messages: BaseMessage[]) {
             undefined,
             undefined,
             SpanType.GENERATION,
-          );
+          ).start();
           try {
             responseSpan.setModel("gpt-4.1");
 
@@ -223,7 +223,7 @@ async function traceConversation(threadId: string, messages: BaseMessage[]) {
             undefined,
             undefined,
             SpanType.TOOL,
-          );
+          ).start();
           try {
             toolSpan.setAttribute("tool.name", tc.name);
             toolSpan.setAttribute("tool.args", JSON.stringify(tc.args));

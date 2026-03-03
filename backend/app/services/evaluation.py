@@ -6,7 +6,7 @@ def run_evaluation(dataset_id: str) -> dict | None:
     dataset = Netra.evaluation.get_dataset(dataset_id) #type: ignore
 
     return Netra.evaluation.run_test_suite( #type: ignore
-        name="Nova Single Turn",
+        name="Loan Agent Single Turn",
         data=dataset,
         task=lambda message: get_response(message, thread_id=uuid4().hex)
     )
