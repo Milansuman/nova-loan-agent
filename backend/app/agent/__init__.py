@@ -32,10 +32,10 @@ def verify_agent_response(state: AgentState, runtime: Runtime) -> dict[str, Any]
     # Check if check_eligibility tool was called in this turn
     for message in state["messages"]:
         # Only AIMessage has tool_calls
-        if isinstance(message, AIMessage) and hasattr(message, "tool_calls"):
-            for tool_call in message.tool_calls:
-                if tool_call.get("name") == "check_eligibility":
-                    has_eligibility_check = True
+        # if isinstance(message, AIMessage) and hasattr(message, "tool_calls"):
+        #     for tool_call in message.tool_calls:
+        #         if tool_call.get("name") == "check_eligibility":
+        #             has_eligibility_check = True
         if hasattr(message, "type") and message.type == "tool" and hasattr(message, "name"):
             if message.name == "check_eligibility":
                 eligibility_output = message.content
@@ -58,7 +58,7 @@ def verify_agent_response(state: AgentState, runtime: Runtime) -> dict[str, Any]
     lakh_pattern = r'\d+\.?\d*\s*(?:lakh|lakhs|L\b)|\d{1,3}(?:[,.]?\d{2,3})+'
     contains_lakh = bool(re.search(lakh_pattern, ai_message, re.IGNORECASE))
     
-    if has_eligibility_check and contains_lakh and eligibility_output:
+    if contains_lakh:
         # Ask LLM to verify and correct the amounts
         verification_prompt = f"""
 You are verifying a loan agent's response for accuracy.
@@ -77,7 +77,7 @@ Specifically verify:
 
 If the response is correct, return it as-is.
 If incorrect, return a corrected version that accurately reflects the tool output data.
-
+If there's no eligibility output, round the amount up to the nearest lakh.
 Return ONLY the corrected response text, nothing else.
 """
         
