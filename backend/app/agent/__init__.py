@@ -141,7 +141,7 @@ def get_response(prompt: str, thread_id: str):
     })
 
     # Pass the actual response messages which include middleware modifications
-    trace_conversation(thread_id, response["messages"])
+    # trace_conversation(thread_id, response["messages"])
     return response["messages"][-1].text
 
 def trace_conversation(thread_id: str, messages: list[AnyMessage] | None = None):
