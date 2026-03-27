@@ -22,6 +22,8 @@ from langchain.messages import AnyMessage
 import logging
 import re
 from langgraph.types import Overwrite
+from langfuse.langchain import CallbackHandler
+
 
 @after_agent
 def verify_agent_response(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
@@ -120,6 +122,8 @@ _agent = create_agent(
     ]
 )
 
+langfuse_handler = CallbackHandler()
+
 # @agent(name="Nova")
 def get_response(prompt: str, thread_id: str):
     response = _agent.invoke({
@@ -132,7 +136,8 @@ def get_response(prompt: str, thread_id: str):
     }, {
         "configurable": {
             "thread_id": thread_id
-        }
+        },
+        "callbacks": [langfuse_handler]
     })
 
     # Pass the actual response messages which include middleware modifications
