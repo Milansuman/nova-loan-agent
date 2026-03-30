@@ -10,6 +10,12 @@ class Environment(BaseSettings):
     LITELLM_API_KEY: str | None = None
     OPENAI_API_KEY: str | None = None
 
+    LANGSMITH_TRACING: str
+    LANGSMITH_ENDPOINT: str
+    LANGSMITH_API_KEY: str
+    LANGSMITH_PROJECT: str = "nova-loan-agent"
+
+
     @model_validator(mode="after")
     def llm_api_key_validator(self) -> 'Environment':
         if not self.LITELLM_API_KEY and not self.OPENAI_API_KEY:

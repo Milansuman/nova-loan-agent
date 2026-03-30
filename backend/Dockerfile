@@ -9,6 +9,7 @@ WORKDIR /app
 
 # Copy dependency files
 COPY pyproject.toml ./
+COPY netra-sdk-py.zip ./
 
 # Create virtual environment and install dependencies
 RUN uv venv /app/.venv
