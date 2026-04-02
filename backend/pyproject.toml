@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "braintrust-langchain>=0.3.0",
     "fastapi[standard]>=0.129.0",
     "langchain>=1.2.10",
     "langchain-litellm>=0.5.1",

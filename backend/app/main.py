@@ -4,6 +4,7 @@ from schema.chat_request import ChatRequest
 from agent import get_response
 import logging
 import uuid
+import asyncio
 import uvicorn
 from config import env
 from contextlib import asynccontextmanager
@@ -67,13 +68,24 @@ def chat(chat: ChatRequest, response: Response):
         }
     
 @app.post("/simulation/{dataset_id}")
-def start_simulation(dataset_id: str, response: Response):
+async def start_simulation(dataset_id: str, response: Response, n: int = 1):
     try:
-        result = run_simulation(dataset_id)
-        if not result:
-            raise ValueError("Simulation failed")
+        if n < 1:
+            raise ValueError("n must be greater than 0")
 
-        return result
+        async def run_once() -> dict:
+            result = await asyncio.to_thread(run_simulation, dataset_id)
+            if not result:
+                raise ValueError("Simulation failed")
+            return result
+
+        results = await asyncio.gather(*[run_once() for _ in range(n)])
+
+        return {
+            "dataset_id": dataset_id,
+            "runs": n,
+            "results": results
+        }
     except Exception as e:
         logging.error(msg=e)
         response.status_code = 500

@@ -22,6 +22,9 @@ from langchain.messages import AnyMessage
 import logging
 import re
 from langgraph.types import Overwrite
+from braintrust import init_logger
+from braintrust_langchain import BraintrustCallbackHandler, set_global_handler
+from config import env
 
 @after_agent
 def verify_agent_response(state: AgentState, runtime: Runtime) -> dict[str, Any] | None:
@@ -119,6 +122,8 @@ _agent = create_agent(
         )
     ]
 )
+
+
 
 # @agent(name="Nova")
 def get_response(prompt: str, thread_id: str):
