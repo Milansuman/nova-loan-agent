@@ -50,7 +50,7 @@
             "kyc_status": "complete",
             "risk_flag": "none",
             "pan": "ABCPS1234R",
-            "aadhar": "234567891234",
+            "aadhaar": "234567891234",
             "phone": "9876543210",
             "credit_report": {
                 "credit_score": 780,
@@ -82,7 +82,7 @@
             "kyc_status": "complete",
             "risk_flag": "none",
             "pan": "ABCPM5678Q",
-            "aadhar": "567890123456",
+            "aadhaar": "567890123456",
             "phone": "9823456789",
             "credit_report": {
                 "credit_score": 724,
@@ -112,7 +112,7 @@
             "kyc_status": "complete",
             "risk_flag": "medium",
             "pan": "ABCPP9012X",
-            "aadhar": "890123456789",
+            "aadhaar": "890123456789",
             "phone": "9712345678",
             "credit_report": {
                 "credit_score": 580,
@@ -147,7 +147,7 @@
             "kyc_status": "complete",
             "risk_flag": "none",
             "pan": "ABCPI7890M",
-            "aadhar": "890123456780",
+            "aadhaar": "890123456780",
             "phone": "9712345670",
             "credit_report": {
                 "credit_score": 710,
