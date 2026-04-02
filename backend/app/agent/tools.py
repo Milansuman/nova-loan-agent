@@ -19,7 +19,7 @@ def verify_identity(identifier_type: str, identifier_value: str):
 
     try:
         db = get_db()
-        if identifier_type not in ["PAN", "AADHAR", "PHONE"]:
+        if identifier_type not in ["PAN", "AADHAAR", "PHONE"]:
             logging.error(f"Invalid identifier type: {identifier_type}, value: {identifier_value}")
             return {
                 "error": "invalid identifier type"
